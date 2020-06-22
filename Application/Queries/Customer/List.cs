@@ -1,4 +1,6 @@
-﻿namespace Application.Queries.Customer
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Application.Queries.Customer
 {
     using Domain;
     using MediatR;
@@ -21,24 +23,7 @@
             }
             public async Task<List<Customer>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var customers = new List<Customer>
-                {
-                    new Customer
-                    {
-                        Document = "123",
-                        FirstName = "Uno",
-                        LastName = "Uno",
-                        Email = "test@test.test"
-                    },
-                    new Customer
-                    {
-                        Document = "132",
-                        FirstName = "Dos",
-                        LastName = "Uno",
-                        Email = "test@test.test"
-                    }
-                };
-                // var customers = await _context.Customers.ToListAsync(cancellationToken);
+                var customers = await _context.Customers.ToListAsync(cancellationToken);
 
                 return customers;
             }

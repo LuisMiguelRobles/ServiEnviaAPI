@@ -1,4 +1,9 @@
-﻿namespace Application.Commands.Customer
+﻿using System.Linq;
+using System.Net;
+using Application.Errors;
+using Microsoft.EntityFrameworkCore;
+
+namespace Application.Commands.Customer
 {
     using FluentValidation;
     using MediatR;
@@ -42,19 +47,29 @@
             }
             public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
             {
+                if (await _context.Customers.Where(x => x.Document == request.Document)
+                    .AnyAsync(cancellationToken))
+                {
+                    throw new RestException(HttpStatusCode.BadRequest, new { Message = "Customer already exits" });
+                }
+
                 var customer = new Customer
                 {
                     Id = request.Id,
                     FirstName = request.FirstName,
                     LastName = request.LastName,
-                    Document = request.Document,
+                    Document = request.Document,    
                     BirthDate = request.BirthDate,
                     Email = request.Email
                 };
+
                 _context.Customers.Add(customer);
+
                 var success = await _context.SaveChangesAsync(cancellationToken) > 0;
-                if(success) return Unit.Value;
-                throw new Exception("Problem saving changes");
+
+                if (success) return Unit.Value;
+
+                throw new Exception("problem saving changes");
             }
         }
     }
