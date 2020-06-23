@@ -1,25 +1,26 @@
 ﻿namespace API.Controllers
 {
-    using Application.Commands.Customer;
-    using Application.Queries.Customer;
+    using Application.Commands.Order;
+    using Application.Queries.Order;
     using Domain;
+    using System;
     using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-
-    public class CustomerController : BaseController
+    public class OrderController : BaseController
     {
         [HttpGet]
-        public async Task<ActionResult<List<Customer>>> List()
+        public async Task<ActionResult<List<Order>>> List()
         {
             return await Mediator.Send(new List.Query());
         }
 
-        [HttpGet("{document}")]
-        public async Task<ActionResult<Customer>> Search(string document)
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Order>> Search(Guid id)
         {
-            return await Mediator.Send(new Search.Query { Document = document });
+            return await Mediator.Send(new Search.Query { Id = id });
         }
 
         [HttpPost]
@@ -31,13 +32,12 @@
             return await Mediator.Send(command);
         }
 
-        [HttpPut("{document}")]
-        public async Task<ActionResult<Unit>> Update(string document, Update.Command command)
+        [HttpPatch]
+        public async Task<ActionResult<Unit>> UpdateStatus(Update.Command command)
         {
             if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                return BadRequest();
 
-            command.Document = document;
             return await Mediator.Send(command);
         }
     }
